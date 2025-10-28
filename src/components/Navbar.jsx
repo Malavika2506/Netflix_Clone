@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout } from "../features/auth/authSlice";
 import { useState } from "react";
-import { Menu, X } from "lucide-react"; // For menu icons
+import { Menu, X } from "lucide-react";
 import logoImage from "../assets/netflix_logo.png";
 
 export default function Navbar() {
@@ -11,14 +11,16 @@ export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("home");
 
   const handleLogout = () => {
     dispatch(logout());
     navigate("/login");
   };
 
-  // Smooth scroll to section if already on homepage
+  // Smooth scroll and set active tab
   const handleScroll = (id) => {
+    setActiveTab(id);
     setMenuOpen(false);
     if (location.pathname !== "/") {
       navigate("/", { state: { scrollTo: id } });
@@ -30,6 +32,13 @@ export default function Navbar() {
     }
   };
 
+  const navItemClass = (tab) =>
+    `relative pb-1 transition-colors duration-200 hover:text-white ${
+      activeTab === tab
+        ? "text-white after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-full after:h-[2px] after:bg-white"
+        : "text-gray-300"
+    }`;
+
   return (
     <nav className="fixed top-0 left-0 w-full bg-black/70 backdrop-blur-md z-50 shadow-md transition-all duration-300">
       <div className="flex justify-between items-center px-4 sm:px-8 md:px-16 py-3">
@@ -39,30 +48,38 @@ export default function Navbar() {
             src={logoImage}
             alt="Netflix Logo"
             className="w-24 sm:w-28 md:w-32"
-            onClick={() => navigate("/")}
+            onClick={() => {
+              setActiveTab("home");
+              navigate("/");
+            }}
           />
         </div>
 
         {/* Desktop Nav Links */}
-        <div className="hidden sm:flex gap-6 text-gray-300 font-medium text-sm md:text-base">
-          <Link to="/" className="hover:text-white transition-colors duration-200">
+        <div className="hidden sm:flex gap-6 font-medium text-sm md:text-base">
+          <Link
+            to="/"
+            onClick={() => setActiveTab("home")}
+            className={navItemClass("home")}
+          >
             Home
           </Link>
           <button
             onClick={() => handleScroll("movies-section")}
-            className="hover:text-white transition-colors duration-200"
+            className={navItemClass("movies-section")}
           >
             Movies
           </button>
           <button
             onClick={() => handleScroll("trending-section")}
-            className="hover:text-white transition-colors duration-200"
+            className={navItemClass("trending-section")}
           >
             Trending
           </button>
           <Link
             to="/favorites"
-            className="hover:text-white transition-colors duration-200"
+            onClick={() => setActiveTab("favorites")}
+            className={navItemClass("favorites")}
           >
             Favorites ❤️
           </Link>
@@ -92,27 +109,33 @@ export default function Navbar() {
         <div className="sm:hidden bg-black/90 text-white flex flex-col items-center gap-4 py-4 border-t border-gray-700">
           <Link
             to="/"
-            onClick={() => setMenuOpen(false)}
-            className="hover:text-red-500 transition-colors"
+            onClick={() => {
+              setMenuOpen(false);
+              setActiveTab("home");
+            }}
+            className={navItemClass("home")}
           >
             Home
           </Link>
           <button
             onClick={() => handleScroll("movies-section")}
-            className="hover:text-red-500 transition-colors"
+            className={navItemClass("movies-section")}
           >
             Movies
           </button>
           <button
             onClick={() => handleScroll("trending-section")}
-            className="hover:text-red-500 transition-colors"
+            className={navItemClass("trending-section")}
           >
             Trending
           </button>
           <Link
             to="/favorites"
-            onClick={() => setMenuOpen(false)}
-            className="hover:text-red-500 transition-colors"
+            onClick={() => {
+              setMenuOpen(false);
+              setActiveTab("favorites");
+            }}
+            className={navItemClass("favorites")}
           >
             Favorites ❤️
           </Link>

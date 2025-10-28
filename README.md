@@ -1,16 +1,121 @@
-# React + Vite
+# 🎥 Netflix Clone - React + Redux + Firebase (In Progress)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **Netflix-inspired web app** built using **React, Redux Toolkit, Tailwind CSS**, and **Firebase Authentication** (currently under setup).  
+This project demonstrates **frontend development skills**, state management with **Redux**, and smooth UI using **Tailwind CSS**.  
 
-Currently, two official plugins are available:
+> 🧑‍💻 You can log in using any email and password (demo authentication).  
+> 📱 Firebase Phone Authentication setup is in progress and will be added soon.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🚀 **Live Demo**
+🔗 [Will be added after deployment]
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🧩 **Features**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+✅ **User Authentication (Login / Logout)**  
+- Currently supports basic login using localStorage  
+- Firebase phone-based OTP authentication setup in progress  
+
+✅ **Responsive Navbar with Smooth Scroll & Mobile Menu**  
+- Adaptive design for all devices  
+- Includes a hamburger menu for mobile view  
+
+✅ **Search & Filter Movies**  
+- Search movies by title  
+- Filter by genre (Action, Sci-Fi, Adventure, Fantasy, etc.)  
+
+✅ **Trending Section**  
+- Highlights top-rated movies dynamically  
+
+✅ **Favorites Section ❤️**  
+- Add or remove favorite movies  
+- Favorites persist while logged in  
+
+✅ **Movie Detail Page**  
+- View overview, rating, genre, and release date  
+
+✅ **Smooth Animations & Tailwind Styling**  
+- Netflix-inspired gradient tones  
+- Blurred background with hover transitions  
+
+---
+
+## 🛠️ **Tech Stack**
+
+| Category | Technologies Used |
+|-----------|-------------------|
+| **Frontend** | React.js, Redux Toolkit, Tailwind CSS |
+| **State Management** | Redux Toolkit (createSlice, createAsyncThunk) |
+| **Routing** | React Router v6 |
+| **Authentication** | Firebase Authentication (Phone Auth setup in progress) |
+| **Deployment (Planned)** | Vercel / Netlify |
+| **Icons** | Lucide React |
+
+---
+
+## 📂 **Folder Structure**
+
+src/
+┣ components/
+┃ ┣ Navbar.jsx
+┃ ┣ MovieCard.jsx
+┃ ┣ SearchBar.jsx
+┃ ┗ TrendingMovies.jsx
+┣ features/
+┃ ┣ auth/
+┃ ┃ ┗ authSlice.js
+┃ ┗ movies/
+┃ ┃ ┗ moviesSlice.js
+┣ pages/
+┃ ┣ HomePage.jsx
+┃ ┣ MovieDetailPage.jsx
+┃ ┣ FavoritesPage.jsx
+┃ ┗ LoginPage.jsx
+┣ assets/
+┃ ┗ netflix_logo.png
+┃ ┗ 1net.png
+┃ ┗ 2net.png
+┃ ┗ 3net.png
+┃ ┗ 4net.png
+┣ App.jsx
+┣ firebase.js
+┗ main.jsx
+
+
+---
+
+## 🔐 **Firebase Setup (In Progress)**
+
+Firebase configuration is initialized in  
+`src/firebase.js` using **Firebase Auth + OTP Login**.
+
+- **Phone Number Authentication** setup in progress  
+- Will support OTP verification soon  
+- Error handling & billing setup under configuration  
+
+---
+
+## 📸 **Screenshots**
+
+
+```markdown
+
+### ❤️ Login Page
+![Login Screenshot](./screenshots/Loginpage.png)
+![Login Screenshot](./screenshots/login2.png)
+![Login Screenshot](./screenshots/login3.png)
+![Login Screenshot](./screenshots/login4.png)
+
+
+
+
+### 🏠 Homepage
+![Homepage Screenshot](./screenshots/Homepage.png)
+
+### ❤️ Favorites Page
+![Favorites Screenshot](./screenshots/favouritepage.png)
+
+
