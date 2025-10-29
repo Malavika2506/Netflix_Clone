@@ -97,20 +97,13 @@ Firebase configuration is initialized in
 - Error handling & billing setup under configuration  
 
 ---
-
 ## 📸 **Screenshots**
-
-
-```markdown
 
 ### ❤️ Login Page
 ![Login Screenshot](./screenshots/Loginpage.png)
 ![Login Screenshot](./screenshots/login2.png)
 ![Login Screenshot](./screenshots/login3.png)
 ![Login Screenshot](./screenshots/login4.png)
-
-
-
 
 ### 🏠 Homepage
 ![Homepage Screenshot](./screenshots/Homepage.png)
