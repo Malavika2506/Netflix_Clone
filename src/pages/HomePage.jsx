@@ -47,7 +47,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 py-8 pt-24 sm:pt-28 md:pt-32">
         <SearchBar onSearch={handleSearch} />
 
-        {/* 🔥 Show Trending only when not searching */}
+        {/* Show Trending only when not searching */}
         {!isSearching && list.length > 0 && (
           <section id="trending-section" className="mt-10">
             <TrendingMovies movies={list} />
@@ -71,7 +71,7 @@ export default function HomePage() {
               </select>
             </div>
           )}
-
+          {/* Loading Movies */}
           {status === "loading" ? (
             <p className="text-center mt-10 text-gray-400 text-lg animate-pulse">
               Loading movies...

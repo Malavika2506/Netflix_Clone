@@ -10,11 +10,7 @@ import net1 from "../assets/1net.png";
 import net2 from "../assets/2net.png";
 import net3 from "../assets/3net.png";
 import net4 from "../assets/4net.png";
-import {
-  auth,
-  RecaptchaVerifier,
-  signInWithPhoneNumber,
-} from "../firebase";
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
@@ -44,7 +40,11 @@ export default function LoginPage() {
     e.preventDefault();
     if (!email || !password) return alert("Please enter email and password.");
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       dispatch(login(userCredential.user)); // store in redux + localStorage
       alert("Login successful!");
       setShowModal(false);
@@ -125,7 +125,8 @@ export default function LoginPage() {
             Starts at ₹149. Cancel at any time.
           </p>
           <p className="mb-4 text-sm md:text-base">
-            Ready to watch? Enter your email to create or restart your membership.
+            Ready to watch? Enter your email to create or restart your
+            membership.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-[600px]">
@@ -141,121 +142,119 @@ export default function LoginPage() {
         </div>
 
         {/* Sign In Modal */}
-       {showModal && (
-  <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20 px-4 backdrop-blur-sm">
-    <div className="relative w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-6 sm:p-8 text-white transition-transform transform hover:scale-[1.02] duration-300">
-      {/* Close Button */}
-      <button
-        onClick={() => setShowModal(false)}
-        className="absolute top-3 right-4 text-gray-300 text-2xl hover:text-white transition"
-      >
-        ✕
-      </button>
+        {showModal && (
+          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20 px-4 backdrop-blur-sm">
+            <div className="relative w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-6 sm:p-8 text-white transition-transform transform hover:scale-[1.02] duration-300">
+              {/* Close Button */}
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-3 right-4 text-gray-300 text-2xl hover:text-white transition"
+              >
+                ✕
+              </button>
 
-      {/* Title */}
-      <h2 className="text-3xl font-extrabold mb-6 text-center tracking-wide">
-        Sign In
-      </h2>
+              {/* Title */}
+              <h2 className="text-3xl font-extrabold mb-6 text-center tracking-wide">
+                Sign In
+              </h2>
 
-      {/* Login Type Toggle */}
-      <div className="flex justify-center mb-6 bg-white/10 rounded-lg overflow-hidden backdrop-blur-md">
-        <button
-          className={`px-4 py-2 font-semibold transition-all ${
-            loginType === "email"
-              ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
-              : "text-gray-300 hover:text-white"
-          }`}
-          onClick={() => setLoginType("email")}
-        >
-          Email
-        </button>
-        <button
-          className={`px-4 py-2 font-semibold transition-all ${
-            loginType === "phone"
-              ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
-              : "text-gray-300 hover:text-white"
-          }`}
-          onClick={() => setLoginType("phone")}
-        >
-          Phone
-        </button>
+              {/* Login Type Toggle */}
+              <div className="flex justify-center mb-6 bg-white/10 rounded-lg overflow-hidden backdrop-blur-md">
+                <button
+                  className={`px-4 py-2 font-semibold transition-all ${
+                    loginType === "email"
+                      ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
+                      : "text-gray-300 hover:text-white"
+                  }`}
+                  onClick={() => setLoginType("email")}
+                >
+                  Email
+                </button>
+                <button
+                  className={`px-4 py-2 font-semibold transition-all ${
+                    loginType === "phone"
+                      ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
+                      : "text-gray-300 hover:text-white"
+                  }`}
+                  onClick={() => setLoginType("phone")}
+                >
+                  Phone
+                </button>
+              </div>
+
+              {/* Email Login */}
+              {loginType === "email" ? (
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+                  >
+                    Sign In
+                  </button>
+                </form>
+              ) : (
+                // Phone OTP Login
+                <div className="space-y-4">
+                  {!otpSent ? (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Phone number (+91...)"
+                        className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                      />
+                      <div id="recaptcha-container"></div>
+                      <button
+                        onClick={sendOtp}
+                        className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+                      >
+                        Send OTP
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <input
+                        type="text"
+                        placeholder="Enter OTP"
+                        className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                      />
+                      <button
+                        onClick={verifyOtp}
+                        className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+                      >
+                        Verify OTP
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Email Login */}
-      {loginType === "email" ? (
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="submit"
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
-          >
-            Sign In
-          </button>
-        </form>
-      ) : (
-        // Phone OTP Login
-        <div className="space-y-4">
-          {!otpSent ? (
-            <>
-              <input
-                type="text"
-                placeholder="Phone number (+91...)"
-                className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-              />
-              <div id="recaptcha-container"></div>
-              <button
-                onClick={sendOtp}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
-              >
-                Send OTP
-              </button>
-            </>
-          ) : (
-            <>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-              />
-              <button
-                onClick={verifyOtp}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
-              >
-                Verify OTP
-              </button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
-      </div>
-
- {/* Trending Now Section */}
+      {/* Trending Now Section */}
       <div className="bg-black text-white py-12 relative">
         <h2 className="px-5 md:px-20 lg:px-[145px] text-2xl font-bold mb-6">
           Trending Now
         </h2>
-
 
         <div className="relative px-5 md:px-20 lg:px-[145px]">
           {/* Scroll Buttons (hidden on small screens) */}
@@ -270,7 +269,6 @@ export default function LoginPage() {
             &#8249;
           </button>
 
-
           <button
             onClick={() => {
               document
@@ -282,9 +280,11 @@ export default function LoginPage() {
             &#8250;
           </button>
 
-
           {/* Movie Row */}
-          <div id="movieRow" className="overflow-x-auto scrollbar-hide scroll-smooth">
+          <div
+            id="movieRow"
+            className="overflow-x-auto scrollbar-hide scroll-smooth"
+          >
             <div className="flex gap-4 sm:gap-6">
               {status === "loading" && <p>Loading movies...</p>}
               {status === "succeeded" &&
@@ -306,7 +306,9 @@ export default function LoginPage() {
                       <h3 className="font-semibold text-base sm:text-lg mb-1">
                         {movie.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-gray-300">{movie.genre}</p>
+                      <p className="text-xs sm:text-sm text-gray-300">
+                        {movie.genre}
+                      </p>
                       <p className="text-xs sm:text-sm mt-1 text-gray-400">
                         ⭐ {movie.rating} | {movie.release_date.split("-")[0]}
                       </p>
@@ -317,8 +319,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-
-        {/* Movie Modal */}
+        {/* Movie Modalss */}
         {selectedMovie && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-30 px-4">
             <div className="bg-black text-white rounded-lg p-6 max-w-lg w-full relative">
@@ -338,7 +339,8 @@ export default function LoginPage() {
               </h2>
               <p className="text-gray-300 mb-1">{selectedMovie.genre}</p>
               <p className="text-gray-400 mb-2">
-                ⭐ {selectedMovie.rating} | {selectedMovie.release_date.split("-")[0]}
+                ⭐ {selectedMovie.rating} |{" "}
+                {selectedMovie.release_date.split("-")[0]}
               </p>
               <p className="text-gray-300 text-sm">{selectedMovie.plot}</p>
             </div>
@@ -346,19 +348,35 @@ export default function LoginPage() {
         )}
       </div>
 
-
       {/* More Reasons to Join */}
       <div className="bg-black text-white py-16">
         <div className="px-5 md:px-20 lg:px-[145px]">
-          <h2 className="text-2xl md:text-3xl font-bold mb-10">More reasons to join</h2>
-
+          <h2 className="text-2xl md:text-3xl font-bold mb-10">
+            More reasons to join
+          </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { title: "Enjoy on your TV", desc: "Watch on smart TVs, PlayStation, Xbox, Chromecast, Apple TV, Blu-ray players and more.", img: net1 },
-              { title: "Download your shows to watch offline", desc: "Save your favourites easily and always have something to watch.", img: net2 },
-              { title: "Watch everywhere", desc: "Stream unlimited movies and TV shows on your phone, tablet, laptop and TV.", img: net3 },
-              { title: "Create profiles for kids", desc: "Send kids on adventures with their favourite characters in a space made just for them — free with your membership.", img: net4 }
+              {
+                title: "Enjoy on your TV",
+                desc: "Watch on smart TVs, PlayStation, Xbox, Chromecast, Apple TV, Blu-ray players and more.",
+                img: net1,
+              },
+              {
+                title: "Download your shows to watch offline",
+                desc: "Save your favourites easily and always have something to watch.",
+                img: net2,
+              },
+              {
+                title: "Watch everywhere",
+                desc: "Stream unlimited movies and TV shows on your phone, tablet, laptop and TV.",
+                img: net3,
+              },
+              {
+                title: "Create profiles for kids",
+                desc: "Send kids on adventures with their favourite characters in a space made just for them — free with your membership.",
+                img: net4,
+              },
             ].map((card, index) => (
               <div
                 key={index}
@@ -366,7 +384,9 @@ export default function LoginPage() {
               >
                 <div>
                   <h3 className="text-lg font-semibold mb-2">{card.title}</h3>
-                  <p className="text-sm text-gray-300 leading-relaxed">{card.desc}</p>
+                  <p className="text-sm text-gray-300 leading-relaxed">
+                    {card.desc}
+                  </p>
                 </div>
                 <div className="absolute bottom-4 right-4">
                   <img
@@ -381,11 +401,12 @@ export default function LoginPage() {
         </div>
       </div>
 
-
       {/* FAQ Section */}
       <div className="bg-black text-white py-16">
         <div className="px-5 md:px-20 lg:px-[145px]">
-          <h2 className="text-2xl md:text-3xl font-bold mb-10">Frequently Asked Questions</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-10">
+            Frequently Asked Questions
+          </h2>
           <div className="space-y-4">
             {[
               {
@@ -409,24 +430,29 @@ export default function LoginPage() {
                 a: "Yes. Netflix Kids gives parents control and lets kids enjoy safe, family-friendly entertainment with PIN-protected parental settings.",
               },
             ].map((faq, index) => (
-              <details key={index} className="bg-[#2d2d2d] rounded-lg overflow-hidden">
+              <details
+                key={index}
+                className="bg-[#2d2d2d] rounded-lg overflow-hidden"
+              >
                 <summary className="cursor-pointer text-lg font-medium p-6 flex justify-between items-center">
                   <span>{faq.q}</span>
                   <span className="text-3xl leading-none">+</span>
                 </summary>
-                <div className="p-6 text-gray-300 text-base md:text-lg">{faq.a}</div>
+                <div className="p-6 text-gray-300 text-base md:text-lg">
+                  {faq.a}
+                </div>
               </details>
             ))}
           </div>
         </div>
       </div>
 
-
       {/* Footer Section */}
       <section className="bg-black text-gray-300 py-10 px-5 md:px-20">
         <div className="text-center mb-8">
           <h2 className="text-lg md:text-2xl font-medium mb-4">
-            Ready to watch? Enter your email to create or restart your membership.
+            Ready to watch? Enter your email to create or restart your
+            membership.
           </h2>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
             <input
@@ -440,12 +466,11 @@ export default function LoginPage() {
           </div>
         </div>
 
-
         <div className="text-center md:text-left text-gray-400 space-y-8">
           <p className="text-sm">
-            Questions? Call <span className="underline cursor-pointer">000-800-919-1743</span>
+            Questions? Call{" "}
+            <span className="underline cursor-pointer">000-800-919-1743</span>
           </p>
-
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-sm">
             {[
@@ -471,7 +496,6 @@ export default function LoginPage() {
             ))}
           </div>
 
-
           <div className="mt-6">
             <select className="bg-transparent border border-gray-600 px-3 py-2 rounded-md text-white">
               <option>English</option>
@@ -479,17 +503,16 @@ export default function LoginPage() {
             </select>
             <p className="mt-4 text-sm">Netflix India</p>
           </div>
-
-
+            {/* Page End */}
           <p className="text-xs mt-6 text-gray-500 mb-10">
-            This page is protected by Google reCAPTCHA to ensure you're not a bot.
-            <a href="#" className="underline ml-1">Learn more.</a>
+            This page is protected by Google reCAPTCHA to ensure you're not a
+            bot.
+            <a href="#" className="underline ml-1">
+              Learn more.
+            </a>
           </p>
         </div>
       </section>
     </>
   );
 }
-
-
-
