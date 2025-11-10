@@ -9,7 +9,7 @@ This project demonstrates **frontend development skills**, state management with
 ---
 
 ## 🚀 **Live Demo**
-🔗 [Will be added after deployment]
+🔗 [https://netflix-clone-3f4l.onrender.com]
 
 ---
 
