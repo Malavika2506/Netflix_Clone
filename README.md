@@ -11,6 +11,11 @@ This project demonstrates **frontend development skills**, state management with
 ## 🚀 **Live Demo**
 🔗 [https://netflix-clone-3f4l.onrender.com]
 
+Email Login
+
+Email : test@gmail.com
+password: 123456
+
 ---
 
 ## 🧩 **Features**
