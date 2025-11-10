@@ -1,19 +1,32 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login } from "../features/auth/authSlice";
 import { fetchMovies } from "../features/movies/moviesSlice";
 import { useNavigate } from "react-router-dom";
+import { login } from "../features/auth/authSlice";
+
 import bgImage from "../assets/netflix_login.jpg";
 import logoImage from "../assets/netflix_logo.png";
 import net1 from "../assets/1net.png";
 import net2 from "../assets/2net.png";
 import net3 from "../assets/3net.png";
 import net4 from "../assets/4net.png";
+import {
+  auth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+} from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [loginType, setLoginType] = useState("email");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState(null);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -26,12 +39,55 @@ export default function LoginPage() {
     }
   }, [status, dispatch]);
 
-  const handleLogin = (e) => {
+  // ---------- Email Login ----------
+  const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) return alert("Please enter email and password.");
-    dispatch(login({ email }));
-    setShowModal(false);
-    navigate("/");
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      dispatch(login(userCredential.user)); // store in redux + localStorage
+      alert("Login successful!");
+      setShowModal(false);
+      navigate("/"); // redirect to homepage
+    } catch (error) {
+      alert("Error logging in: " + error.message);
+    }
+  };
+
+  // ---------- Send OTP ----------
+  const sendOtp = async () => {
+    if (!phoneNumber) return alert("Enter a valid phone number (e.g., +91...)");
+    try {
+      window.recaptchaVerifier = new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        { size: "invisible" }
+      );
+      const confirmation = await signInWithPhoneNumber(
+        auth,
+        phoneNumber,
+        window.recaptchaVerifier
+      );
+      setConfirmationResult(confirmation);
+      setOtpSent(true);
+      alert("OTP sent successfully!");
+    } catch (error) {
+      alert("Error sending OTP: " + error.message);
+    }
+  };
+
+  // ---------- Verify OTP ----------
+  const verifyOtp = async () => {
+    if (!otp) return alert("Please enter the OTP.");
+    try {
+      const result = await confirmationResult.confirm(otp);
+      dispatch(login(result.user)); // store in redux + localStorage
+      alert("Phone verified successfully!");
+      setShowModal(false);
+      navigate("/"); // redirect to homepage
+    } catch (error) {
+      alert("Invalid OTP. Please try again.");
+    }
   };
 
   return (
@@ -41,19 +97,16 @@ export default function LoginPage() {
         className="relative min-h-screen bg-cover bg-center text-white"
         style={{ backgroundImage: `url(${bgImage})` }}
       >
-        {/* Overlay */}
         <div className="absolute inset-0 bg-black/80" />
 
         {/* Header */}
         <div className="relative z-10 flex justify-between items-center px-5 md:px-20 lg:px-[145px] py-3">
           <img src={logoImage} alt="Netflix Logo" className="w-32 md:w-56" />
-
           <div className="flex items-center gap-3 md:gap-4">
             <select className="bg-black/70 border border-gray-500 px-2 md:px-3 py-1 rounded text-sm md:text-base">
               <option>English</option>
               <option>हिन्दी</option>
             </select>
-
             <button
               onClick={() => setShowModal(true)}
               className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold text-sm md:text-base"
@@ -68,7 +121,9 @@ export default function LoginPage() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mb-4 leading-tight mt-8">
             Unlimited movies, TV <br /> shows and more
           </h1>
-          <p className="text-lg md:text-xl mb-4">Starts at ₹149. Cancel at any time.</p>
+          <p className="text-lg md:text-xl mb-4">
+            Starts at ₹149. Cancel at any time.
+          </p>
           <p className="mb-4 text-sm md:text-base">
             Ready to watch? Enter your email to create or restart your membership.
           </p>
@@ -85,49 +140,122 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Modal for Sign In */}
-        {showModal && (
-          <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20 px-4">
-            <div className="bg-black p-6 sm:p-8 rounded-md w-full max-w-sm relative">
-              <button
-                onClick={() => setShowModal(false)}
-                className="absolute top-3 right-4 text-gray-400 text-xl hover:text-white"
-              >
-                ✕
-              </button>
-              <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Sign In</h2>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full p-3 bg-gray-800 rounded focus:outline-none"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                  type="password"
-                  placeholder="Password"
-                  className="w-full p-3 bg-gray-800 rounded focus:outline-none"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-red-600 hover:bg-red-700 rounded font-semibold"
-                >
-                  Sign In
-                </button>
-              </form>
-            </div>
-          </div>
-        )}
+        {/* Sign In Modal */}
+       {showModal && (
+  <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-20 px-4 backdrop-blur-sm">
+    <div className="relative w-full max-w-sm rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl p-6 sm:p-8 text-white transition-transform transform hover:scale-[1.02] duration-300">
+      {/* Close Button */}
+      <button
+        onClick={() => setShowModal(false)}
+        className="absolute top-3 right-4 text-gray-300 text-2xl hover:text-white transition"
+      >
+        ✕
+      </button>
+
+      {/* Title */}
+      <h2 className="text-3xl font-extrabold mb-6 text-center tracking-wide">
+        Sign In
+      </h2>
+
+      {/* Login Type Toggle */}
+      <div className="flex justify-center mb-6 bg-white/10 rounded-lg overflow-hidden backdrop-blur-md">
+        <button
+          className={`px-4 py-2 font-semibold transition-all ${
+            loginType === "email"
+              ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
+              : "text-gray-300 hover:text-white"
+          }`}
+          onClick={() => setLoginType("email")}
+        >
+          Email
+        </button>
+        <button
+          className={`px-4 py-2 font-semibold transition-all ${
+            loginType === "phone"
+              ? "bg-gradient-to-r from-red-500 to-red-700 text-white"
+              : "text-gray-300 hover:text-white"
+          }`}
+          onClick={() => setLoginType("phone")}
+        >
+          Phone
+        </button>
       </div>
 
-      {/* Trending Now Section */}
+      {/* Email Login */}
+      {loginType === "email" ? (
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+          >
+            Sign In
+          </button>
+        </form>
+      ) : (
+        // Phone OTP Login
+        <div className="space-y-4">
+          {!otpSent ? (
+            <>
+              <input
+                type="text"
+                placeholder="Phone number (+91...)"
+                className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+              <div id="recaptcha-container"></div>
+              <button
+                onClick={sendOtp}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+              >
+                Send OTP
+              </button>
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                className="w-full p-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:ring-2 focus:ring-red-400 placeholder-gray-300 text-white"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+              />
+              <button
+                onClick={verifyOtp}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 font-semibold shadow-lg hover:shadow-red-700/30 transition-all"
+              >
+                Verify OTP
+              </button>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
+      </div>
+
+ {/* Trending Now Section */}
       <div className="bg-black text-white py-12 relative">
         <h2 className="px-5 md:px-20 lg:px-[145px] text-2xl font-bold mb-6">
           Trending Now
         </h2>
+
 
         <div className="relative px-5 md:px-20 lg:px-[145px]">
           {/* Scroll Buttons (hidden on small screens) */}
@@ -142,6 +270,7 @@ export default function LoginPage() {
             &#8249;
           </button>
 
+
           <button
             onClick={() => {
               document
@@ -152,6 +281,7 @@ export default function LoginPage() {
           >
             &#8250;
           </button>
+
 
           {/* Movie Row */}
           <div id="movieRow" className="overflow-x-auto scrollbar-hide scroll-smooth">
@@ -187,6 +317,7 @@ export default function LoginPage() {
           </div>
         </div>
 
+
         {/* Movie Modal */}
         {selectedMovie && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-30 px-4">
@@ -215,13 +346,15 @@ export default function LoginPage() {
         )}
       </div>
 
+
       {/* More Reasons to Join */}
       <div className="bg-black text-white py-16">
         <div className="px-5 md:px-20 lg:px-[145px]">
           <h2 className="text-2xl md:text-3xl font-bold mb-10">More reasons to join</h2>
 
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[ 
+            {[
               { title: "Enjoy on your TV", desc: "Watch on smart TVs, PlayStation, Xbox, Chromecast, Apple TV, Blu-ray players and more.", img: net1 },
               { title: "Download your shows to watch offline", desc: "Save your favourites easily and always have something to watch.", img: net2 },
               { title: "Watch everywhere", desc: "Stream unlimited movies and TV shows on your phone, tablet, laptop and TV.", img: net3 },
@@ -247,6 +380,7 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
 
       {/* FAQ Section */}
       <div className="bg-black text-white py-16">
@@ -287,6 +421,7 @@ export default function LoginPage() {
         </div>
       </div>
 
+
       {/* Footer Section */}
       <section className="bg-black text-gray-300 py-10 px-5 md:px-20">
         <div className="text-center mb-8">
@@ -305,10 +440,12 @@ export default function LoginPage() {
           </div>
         </div>
 
+
         <div className="text-center md:text-left text-gray-400 space-y-8">
           <p className="text-sm">
             Questions? Call <span className="underline cursor-pointer">000-800-919-1743</span>
           </p>
+
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-sm">
             {[
@@ -334,6 +471,7 @@ export default function LoginPage() {
             ))}
           </div>
 
+
           <div className="mt-6">
             <select className="bg-transparent border border-gray-600 px-3 py-2 rounded-md text-white">
               <option>English</option>
@@ -341,6 +479,7 @@ export default function LoginPage() {
             </select>
             <p className="mt-4 text-sm">Netflix India</p>
           </div>
+
 
           <p className="text-xs mt-6 text-gray-500 mb-10">
             This page is protected by Google reCAPTCHA to ensure you're not a bot.
@@ -351,3 +490,6 @@ export default function LoginPage() {
     </>
   );
 }
+
+
+
